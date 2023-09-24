@@ -4,4 +4,4 @@ numpy
 metpy
 plotly
 datetime
-
+openpyxl
