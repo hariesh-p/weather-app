@@ -5,3 +5,5 @@ metpy
 plotly
 datetime
 openpyxl
+matplotlib
+xlsxwriter
