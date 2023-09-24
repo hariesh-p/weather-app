@@ -33,11 +33,10 @@ def download_average_as_xlsx(dataframe, button_text="Download as XLSX"):
 # Function to retrieve data from URL
 @st.cache_data()
 def fetch_data(dat):
-    my_options = webdriver.chrome.options.Options()
+    my_options = webdriver.ChromeOptions()
     my_options.add_argument("--headless")
-    service = webdriver.chrome.service.Service(
-        executable_path=r'D:\Software\Python\PyCharm Edu 2022.2.2\PycharmProjects\meto\chromedriver.exe')
-    browser = webdriver.Chrome(service=service, options=my_options)
+    #browser = webdriver.Chrome(ChromeDriverManager().install(), options=my_options)
+    browser = webdriver.Chrome(options=my_options)
 
     browser.get(dat)
 
