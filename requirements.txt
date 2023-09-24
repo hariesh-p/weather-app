@@ -2,7 +2,6 @@ attr==0.3.2
 ConfigParser==6.0.0
 cryptography==41.0.4
 cx_Freeze==6.15.8
-cx_Freeze==6.15.8
 Cython==3.0.2
 dl==0.1.0
 docutils==0.20.1
@@ -17,16 +16,13 @@ numpy==1.26.0
 pandas==2.1.1
 Pillow==9.5.0
 Pillow==10.0.1
-plotly==5.17.0
-plotly==5.3.1
+plotly==5.17.0  # Choose one version
 protobuf==4.24.3
-pyOpenSSL==23.2.0
 pyOpenSSL==23.2.0
 railroad==0.5.0
 selenium==4.12.0
 Sphinx==7.2.6
-streamlit==1.26.0
-streamlit==1.27.0
+streamlit==1.27.0  # Make sure Streamlit has a single version
 tornado==6.3.3
 trove_classifiers==2023.9.19
 truststore==0.8.0
