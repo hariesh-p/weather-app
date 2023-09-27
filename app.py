@@ -285,11 +285,11 @@ def calculate_averages(df):
 # avg_df = calculate_averages(df)
 
 # Streamlit setup
-st.set_page_config(page_title="Meteo Plots", page_icon=":cloud:", layout="wide")
+st.set_page_config(page_title="Meteoplot", page_icon="🌧", layout="wide")
 st.title("Weather Analysis")
 
 logo = "logo.png"
-st.sidebar.image(logo,width=250)
+st.sidebar.image(logo)
 switch=st.sidebar.toggle("Comparison")
 
 
