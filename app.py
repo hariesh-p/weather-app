@@ -288,8 +288,8 @@ def calculate_averages(df):
 st.set_page_config(page_title="Meteo Plots", page_icon=":cloud:", layout="wide")
 st.title("Weather Analysis")
 
-logo = "logo.png"
-st.sidebar.image(logo,width=250)
+#logo = "logo.png"
+#st.sidebar.image(logo,width=250)
 switch=st.sidebar.toggle("Comparison")
 
 
