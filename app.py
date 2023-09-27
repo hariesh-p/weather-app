@@ -93,8 +93,10 @@ def display(selected, df,avg_df):
         xaxis = st.selectbox("Selected the X-Axis", options=df.columns)
         yaxis = st.selectbox("Selected the Y-Axis", options=df.columns)
         plot=px.line(df, x=xaxis, y=yaxis,markers=True)
+
         if yaxis == "PRES":
             plot.update_layout(yaxis=dict(autorange="reversed"), xaxis_title=xaxis, yaxis_title=yaxis)
+
         st.plotly_chart(plot)
     elif selected =="Average plots":
         # pl = st.sidebar.selectbox("Yaxis Normal or Inverted", options=["Normal", "Inverted"])
@@ -102,10 +104,19 @@ def display(selected, df,avg_df):
         xaxis = st.selectbox("Selected the X-Axis", options=avg_df.columns)
         yaxis = st.selectbox("Selected the Y-Axis", options=avg_df.columns)
         plot = px.scatter(avg_df, x=xaxis, y=yaxis)
-        plot.add_trace(px.line(avg_df, x=xaxis, y=yaxis, title='Line').data[0])
+        plot.update_traces(
+            marker=dict(size=10),  # Set scatter point width
+            marker_color='red'  # Set scatter point color
+        )
+        fullplot=plot.add_trace(px.line(avg_df, x=xaxis, y=yaxis, title='Line').data[0])
+        # Customize line plot appearance
+        fullplot.update_traces(
+            line=dict(width=4)  # Set line width
+
+        )
         if yaxis == "Pressure":
             plot.update_layout(yaxis=dict(autorange="reversed"), xaxis_title=xaxis, yaxis_title=yaxis)
-        st.plotly_chart(plot)
+        st.plotly_chart(plot,use_container_width=True)
 
     elif selected == "Wind Plot":
         create_skewt_plot(avg_df)
@@ -189,8 +200,15 @@ def comp_display(selected, year_dataframes,avg_dataframes):
             ))
             if yaxis == "Pressure":
                 plot.update_layout(yaxis=dict(autorange="reversed"), xaxis_title=xaxis, yaxis_title=yaxis)
+        plot.update_traces(
+            marker=dict(size=10),  # Set scatter point width
 
-        st.plotly_chart(plot)
+        )
+        plot.update_traces(
+            line=dict(width=4)  # Set line width
+
+        )
+        st.plotly_chart(plot,use_container_width=True)
 
 
 
@@ -217,9 +235,10 @@ def for_year(selected_year, stnumber):
 
     final_df = pd.concat(data_list, ignore_index=True)
     st.sidebar.title("Options")
-    selecte = st.sidebar.selectbox("Please Select", options=option)
+    selecte = st.sidebar.selectbox("Please Select", options=['Data', 'Average Plot'])
     avgs = calculate_averages(final_df)
     display(selecte, final_df,avgs)
+
 
 def for_month(selected_year, stnumber,m):
     # data_list = []
@@ -244,6 +263,34 @@ def for_month(selected_year, stnumber,m):
     selecte = st.sidebar.selectbox("Please Select", options=option)
     avgs = calculate_averages(df)
     display(selecte,df,avgs)
+
+@st.cache_data(show_spinner=False)
+def compyear(selected_year,stnumber):
+
+        data_list = []
+        td = datetime.date.today()
+        for m in range(1, 13):
+            # Define the end day based on the month
+            if m == 2:
+                if (selected_year % 4 == 0 and selected_year % 100 != 0) or (selected_year % 400 == 0):
+                    end_day = 29  # Leap year
+                else:
+                    end_day = 28  # Non-leap year
+            elif m in [4, 6, 9, 11]:
+                end_day = 30
+            else:
+                end_day = 31
+
+            # Define the URL for the month
+            url = f"https://weather.uwyo.edu/cgi-bin/sounding?region=seasia&TYPE=TEXT%3ALIST&YEAR={selected_year}&MONTH={m:02d}&FROM=0100&TO={end_day}12&STNM={stnumber}"
+            df = fetch_data(url)
+            data_list.append(df)
+
+        final_df = pd.concat(data_list, ignore_index=True)
+
+        avgs = calculate_averages(final_df)
+        return final_df,avgs
+
 
 @st.cache_data(show_spinner=False)
 def calculate_averages(df):
@@ -281,22 +328,33 @@ def calculate_averages(df):
 
     return avg_df
 
-# Example usage:
-# avg_df = calculate_averages(df)
+
 
 # Streamlit setup
 st.set_page_config(page_title="Meteoplot", page_icon="🌧", layout="wide")
-st.title("Meteoplot :cloud:",anchor=False)
+st.title("Meteoplot :barely_sunny:",anchor=False)
 
-logo = "logo.png"
-st.sidebar.image(logo)
+# logo1 = "logo.png"
+# logo=st.sidebar.image(logo1,width=250)
+# st.markdown(
+#     f"""
+#     <style>
+#         .stImage > img {{
+#             position: absolute;
+#             top: 10px;
+#             right: 10px;
+#         }}
+#     </style>
+#     """,
+#     unsafe_allow_html=True
+# )
 switch=st.sidebar.toggle("Comparison")
 
 
 
 if switch:
     stnumber=st.sidebar.number_input("Enter Station Number",step=1,value=43279)
-    comoption=st.sidebar.selectbox("Select Comparision",options=["Month","Day"])
+    comoption=st.sidebar.selectbox("Select Comparision",options=["Day","Month","Year"])
     if comoption=="Month":
         # Create a dictionary to store data frames for corresponding years
         year_dataframes = {}
@@ -305,7 +363,7 @@ if switch:
         ty = datetime.date.today()
         tyy=ty.year
         # years = st.slider("Select The Years", 1973, ty.year, (ty.year-3, ty.year-1))
-        yearop=list(range(1973,ty.year))
+        yearop=list(range(1973,ty.year+1))
         yearop.insert(0,'Select Year')
         year0=st.selectbox("Select The Start Year",yearop)
         if not year0=='Select Year':
@@ -332,14 +390,14 @@ if switch:
                 year_dataframes[selected_year] = df
                 avg_dataframes[selected_year]=avg_df
 
-            option = ["Data", "Plots", "Average plots","Wind Plot"]
+
 
             selecte = st.sidebar.selectbox("Please Select", options=['Data','Average Plot'])
             comp_display(selecte,year_dataframes,avg_dataframes)
 
 
 
-    if comoption=="Day":
+    elif comoption=="Day":
         # Create a dictionary to store data frames for corresponding years
         year_dataframes = {}
         avg_dataframes = {}
@@ -365,6 +423,37 @@ if switch:
 
             selecte = st.sidebar.selectbox("Please Select", options=['Data','Average Plot'])
             comp_display(selecte, year_dataframes, avg_dataframes)
+    elif comoption=="Year":
+
+
+        # Create empty dictionaries to store data frames
+        year_dataframes = {}
+        avg_dataframes = {}
+
+        ty = datetime.date.today()
+        yearop = list(range(1973, ty.year))
+        yearop.insert(0, 'Select Year')
+        year0 = st.selectbox("Select The Start Year", yearop)
+
+        if not year0 == 'Select Year':
+            year1 = st.selectbox("Select The End Year", range(year0 + 1, ty.year + 1))
+
+            for this_year in range(year0, year1 + 1):
+                df,avg_df = compyear(this_year, stnumber)
+
+
+
+                # Store the data frame in the dictionary under the corresponding year
+                year_dataframes[this_year] = df
+
+                avg_dataframes[this_year] = avg_df
+
+        selecte = st.sidebar.selectbox("Please Select", options=['Data', 'Average Plot'])
+        comp_display(selecte, year_dataframes, avg_dataframes)
+        
+
+
+
 
 
 
