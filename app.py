@@ -99,8 +99,7 @@ def display(selected, df,avg_df):
 
         st.plotly_chart(plot)
     elif selected =="Average plots":
-        # pl = st.sidebar.selectbox("Yaxis Normal or Inverted", options=["Normal", "Inverted"])
-        # plot_df = st.selectbox("Select the dataframe to be plotted", options=df.columns)
+
         xaxis = st.selectbox("Selected the X-Axis", options=avg_df.columns)
         yaxis = st.selectbox("Selected the Y-Axis", options=avg_df.columns)
         plot = px.scatter(avg_df, x=xaxis, y=yaxis)
@@ -235,14 +234,13 @@ def for_year(selected_year, stnumber):
 
     final_df = pd.concat(data_list, ignore_index=True)
     st.sidebar.title("Options")
-    selecte = st.sidebar.selectbox("Please Select", options=['Data', 'Average Plot'])
+    selecte = st.sidebar.selectbox("Please Select", options=['Data','Average plots'])
     avgs = calculate_averages(final_df)
     display(selecte, final_df,avgs)
 
 
 def for_month(selected_year, stnumber,m):
-    # data_list = []
-    # td = datetime.date.today()
+
 
     if m == 2:
         if (selected_year % 4 == 0 and selected_year % 100 != 0) or (selected_year % 400 == 0):
@@ -256,9 +254,7 @@ def for_month(selected_year, stnumber,m):
 
         url=f"https://weather.uwyo.edu/cgi-bin/sounding?region=seasia&TYPE=TEXT%3ALIST&YEAR={selected_year}&MONTH={m}&FROM=0100&TO={end_day}12&STNM={stnumber}"
         df = fetch_data(url)
-    # data_list.append(df)
-    #
-    # final_df = pd.concat(data_list, ignore_index=True)
+
     st.sidebar.title("Options")
     selecte = st.sidebar.selectbox("Please Select", options=option)
     avgs = calculate_averages(df)
@@ -334,27 +330,14 @@ def calculate_averages(df):
 st.set_page_config(page_title="Meteoplot", page_icon="🌧", layout="wide")
 st.title("Meteoplot :barely_sunny:",anchor=False)
 
-# logo1 = "logo.png"
-# logo=st.sidebar.image(logo1,width=250)
-# st.markdown(
-#     f"""
-#     <style>
-#         .stImage > img {{
-#             position: absolute;
-#             top: 10px;
-#             right: 10px;
-#         }}
-#     </style>
-#     """,
-#     unsafe_allow_html=True
-# )
+
 switch=st.sidebar.toggle("Comparison")
 
 
 
 if switch:
     stnumber=st.sidebar.number_input("Enter Station Number",step=1,value=43279)
-    comoption=st.sidebar.selectbox("Select Comparision",options=["Day","Month","Year"])
+    comoption=st.sidebar.selectbox("Select Comparison Type",options=["Day","Month","Year"])
     if comoption=="Month":
         # Create a dictionary to store data frames for corresponding years
         year_dataframes = {}
@@ -450,7 +433,7 @@ if switch:
 
         selecte = st.sidebar.selectbox("Please Select", options=['Data', 'Average Plot'])
         comp_display(selecte, year_dataframes, avg_dataframes)
-        
+
 
 
 
@@ -497,7 +480,8 @@ else:
 
 
     elif datetype == "Specific":
-        startdate = st.date_input("Enter The Start Date")
+        startdate = st.date_input("**Enter The Start Date**")
+
         enddate = st.date_input("Enter The End Date")
         startyear = startdate.year
         startmonth = startdate.month
@@ -535,6 +519,7 @@ else:
     elif datetype == "Year":
         selected_year = st.selectbox("Select The Year", range(1973, yr + 1))
         for_year(selected_year, stnumber)
+
 
     elif datetype == "Month":
         mon={"January":1,"Febuary":2,"March":3,"April":4,"May":5,"June":6,"July":7,"August":8,"September":9,"October":10,"November":11,"December":12}
